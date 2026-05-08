@@ -100,6 +100,18 @@
     unstable = import inputs.nixpkgs-unstable {
       inherit (final.stdenv.hostPlatform) system;
       config.allowUnfree = true;
+      overlays = [
+        (_unstableFinal: unstablePrev: {
+          notesnook = unstablePrev.notesnook.overrideAttrs (
+            _oldAttrs:
+            final.lib.optionalAttrs unstablePrev.stdenv.hostPlatform.isDarwin {
+              # Notesnook 3.3.16 changed the DMG layout to nest the app bundle
+              # under the installer volume directory.
+              sourceRoot = "Install Notesnook/Notesnook.app";
+            }
+          );
+        })
+      ];
     };
   };
 }
